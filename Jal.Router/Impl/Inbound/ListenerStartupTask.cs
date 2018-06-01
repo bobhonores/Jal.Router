@@ -60,13 +60,26 @@ namespace Jal.Router.Impl.Inbound
                 }
             }
 
-            var groups = routes.GroupBy(x => x.Route.Name + x.Route.ToPath + x.Route.ToSubscription + x.Route.ToConnectionString);
+            var groups = new Dictionary<string, List<RouteToListen>>();
+
+            foreach (var routeToListen in routes)
+            {
+                foreach (var routePath in routeToListen.Route.Paths)
+                {
+                    if (!groups.ContainsKey(routeToListen.Route.Name + routePath.ToPath + routePath.ToSubscription + routePath.ToConnectionString))
+                        groups.Add(routeToListen.Route.Name + routePath.ToPath + routePath.ToSubscription + routePath.ToConnectionString, new List<RouteToListen>() { routeToListen });
+                    else
+                        groups[routeToListen.Route.Name + routePath.ToPath + routePath.ToSubscription + routePath.ToConnectionString].Add(routeToListen);
+                }  
+            }
+
+            //var groups = routes.GroupBy(x => x.Route.Name + x.Route.ToPath + x.Route.ToSubscription + x.Route.ToConnectionString);
 
             foreach (var @group in groups)
             {
                 var actions = new List<Action<object>>();
 
-                foreach (var item in group)
+                foreach (var item in group.Value)
                 {
                     var route = item.Route;
 
@@ -93,52 +106,58 @@ namespace Jal.Router.Impl.Inbound
                     }
                 }
 
-                if (group.Any())
+                if (group.Value.Any())
                 {
-                    if (group.Count() == 1)
+                    if (group.Value.Count() == 1)
                     {
-                        var item = group.First();
+                        var item = group.Value.First();
 
                         var route = item.Route;
 
                         var saga = item.Saga;
 
-                        var channelpath = item.Saga == null ? _builder.BuildFromRoute(route): _builder.BuildFromSagaAndRoute(saga, route);
-
-                        if (!string.IsNullOrWhiteSpace(route.ToPath) && string.IsNullOrWhiteSpace(route.ToSubscription))
+                        foreach (var routePath in route.Paths)
                         {
-                            pointtopointchannel.Listen(route, actions.ToArray(), channelpath);
+                            var channelpath = item.Saga == null ? _builder.BuildFromRoute(route.Name, routePath) : _builder.BuildFromSagaAndRoute(saga, route.Name, routePath);
 
-                            Console.WriteLine($"Listening {channelpath} point to point channel");
-                        }
+                            if (!string.IsNullOrWhiteSpace(routePath.ToPath) && string.IsNullOrWhiteSpace(routePath.ToSubscription))
+                            {
+                                pointtopointchannel.Listen(routePath, actions.ToArray(), channelpath);
 
-                        if (!string.IsNullOrWhiteSpace(route.ToPath) && !string.IsNullOrWhiteSpace(route.ToSubscription))
-                        {
-                            publishsubscriberchannel.Listen(route, actions.ToArray(), channelpath);
+                                Console.WriteLine($"Listening {channelpath} point to point channel");
+                            }
 
-                            Console.WriteLine($"Listening {channelpath} publish subscriber channel");
+                            if (!string.IsNullOrWhiteSpace(routePath.ToPath) && !string.IsNullOrWhiteSpace(routePath.ToSubscription))
+                            {
+                                publishsubscriberchannel.Listen(routePath, actions.ToArray(), channelpath);
+
+                                Console.WriteLine($"Listening {channelpath} publish subscriber channel");
+                            }
                         }
                     }
                     else
                     {
-                        var item = group.First();
+                        var item = group.Value.First();
 
                         var route = item.Route;
 
-                        var channelpath = _builder.BuildFromRoute(route);
-
-                        if (!string.IsNullOrWhiteSpace(route.ToPath) && string.IsNullOrWhiteSpace(route.ToSubscription))
+                        foreach (var routePath in route.Paths)
                         {
-                            pointtopointchannel.Listen(route, actions.ToArray(), channelpath);
+                            var channelpath = _builder.BuildFromRoute(route.Name, routePath);
 
-                            Console.WriteLine($"Listening {channelpath} point to point channel ({actions.Count})");
-                        }
+                            if (!string.IsNullOrWhiteSpace(routePath.ToPath) && string.IsNullOrWhiteSpace(routePath.ToSubscription))
+                            {
+                                pointtopointchannel.Listen(routePath, actions.ToArray(), channelpath);
 
-                        if (!string.IsNullOrWhiteSpace(route.ToPath) && !string.IsNullOrWhiteSpace(route.ToSubscription))
-                        {
-                            publishsubscriberchannel.Listen(route, actions.ToArray(), channelpath);
+                                Console.WriteLine($"Listening {channelpath} point to point channel ({actions.Count})");
+                            }
 
-                            Console.WriteLine($"Listening {channelpath} publish subscriber channel ({actions.Count})");
+                            if (!string.IsNullOrWhiteSpace(routePath.ToPath) && !string.IsNullOrWhiteSpace(routePath.ToSubscription))
+                            {
+                                publishsubscriberchannel.Listen(routePath, actions.ToArray(), channelpath);
+
+                                Console.WriteLine($"Listening {channelpath} publish subscriber channel ({actions.Count})");
+                            }
                         }
                     }
                 }

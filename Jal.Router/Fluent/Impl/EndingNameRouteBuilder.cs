@@ -30,7 +30,9 @@ namespace Jal.Router.Fluent.Impl
 
         public IHandlerBuilder<TContent, THandler, TData> ForMessage<TContent>()
         {
-            var value = new Route<TContent, THandler>(_name)
+            var value = new Route<TContent, THandler>(_name);
+
+            value.Paths.Add(new RoutePath
             {
                 ToPath = _topath,
 
@@ -39,7 +41,7 @@ namespace Jal.Router.Fluent.Impl
                 ConnectionStringExtractorType = _connectionstringextractortype,
 
                 ToConnectionStringExtractor = _toconnectionstringextractor
-            };
+            });
 
             var builder = new HandlerBuilder<TContent, THandler, TData>(value);
 

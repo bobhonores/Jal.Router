@@ -27,7 +27,7 @@ namespace Jal.Router.AzureServiceBus.Impl
             return string.Empty;
         }
 
-        public override void Listen(Route route, Action<object>[] routeactions, string channelpath)
+        public override void Listen(RoutePath route, Action<object>[] routeactions, string channelpath)
         {
             var client = SubscriptionClient.CreateFromConnectionString(route.ToConnectionString, route.ToPath, route.ToSubscription);
 
