@@ -15,6 +15,8 @@ using Jal.Router.AzureServiceBus.Installer;
 using Jal.Router.AzureServiceBus.LightInject.Installer;
 using Jal.Router.AzureStorage.Extensions;
 using Jal.Router.AzureStorage.Installer;
+using Jal.Router.Fluent.Impl;
+using Jal.Router.Fluent.Interface;
 using Jal.Router.Impl;
 using Jal.Router.Impl.Management;
 using Jal.Router.Installer;
@@ -38,6 +40,7 @@ namespace ConsoleApplication1
     {
         public class Message
         {
+            public string Name { get; set; }
         }
         public interface IMessageHandler
         {
@@ -57,12 +60,31 @@ namespace ConsoleApplication1
             public RouterConfigurationSourceSample()
             {
                 RegisterHandler<IMessageHandler>("handler")
-                .ToListenQueue<IMessageHandler, AppSettingValueSettingFinder>("testqueue", x => "Endpoint=sb://raulqueuetests.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=8WpD2e6cWAW3Qj4AECuzdKCySM4M+ZAIW2VGRHvvXlo=")
-                .ForMessage<Message>().Using<MessageHandler>(x =>
-                {
-                    x.With(((request, handler, context) => handler.Handle(request)));
-                });
-                
+                    .ToListenChannels(builder =>
+                    {
+                        builder.Add<AppSettingValueSettingFinder>("testqueue", x => "Endpoint=sb://butters-sb-eus-001.servicebus.windows.net/;SharedAccessKeyName=ManageSharedAccessKey;SharedAccessKey=6y1Nu4cvJ3ksLIc7wO3a2mFeQM0j35Jr5h8gpoqUL0k=");
+                        builder.Add<AppSettingValueSettingFinder>("testqueue2", x => "Endpoint=sb://butters-sb-eus-001.servicebus.windows.net/;SharedAccessKeyName=ManageSharedAccessKey;SharedAccessKey=6y1Nu4cvJ3ksLIc7wO3a2mFeQM0j35Jr5h8gpoqUL0k=");
+                    })
+                    .ForMessage<Message>().Using<MessageHandler>(x =>
+                    {
+                        x.With(((request, handler, context) => handler.Handle(request)));
+                    });
+
+
+                //RegisterHandler<IMessageHandler>("handler")
+                //.ToListenQueue<IMessageHandler, AppSettingValueSettingFinder>("testqueue", x => "Endpoint=sb://butters-sb-eus-001.servicebus.windows.net/;SharedAccessKeyName=ManageSharedAccessKey;SharedAccessKey=6y1Nu4cvJ3ksLIc7wO3a2mFeQM0j35Jr5h8gpoqUL0k=")
+                //.ForMessage<Message>().Using<MessageHandler>(x =>
+                //{
+                //    x.With(((request, handler, context) => handler.Handle(request)));
+                //});
+
+                //RegisterHandler<IMessageHandler>("handler")
+                //    .ToListenQueue<IMessageHandler, AppSettingValueSettingFinder>("testqueue", x => "Endpoint=sb://raulqueuetests.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=8WpD2e6cWAW3Qj4AECuzdKCySM4M+ZAIW2VGRHvvXlo=")
+                //    .ForMessage<Message>().Using<MessageHandler>(x =>
+                //    {
+                //        x.With(((request, handler, context) => handler.Handle(request)));
+                //    });
+
                 //RegisterOrigin("appflowc", "789");
 
                 //RegisterEndPoint("appe")
@@ -72,13 +94,12 @@ namespace ConsoleApplication1
 
             }
         }
-        static void Main1(string[] args)
+        static void Main(string[] args)
         {
             var container = new LightInject.ServiceContainer();
             container.RegisterRouter(new IRouterConfigurationSource[] { new RouterConfigurationSourceSample() });
             container.RegisterFrom<ServiceLocatorCompositionRoot>();
             container.RegisterAzureServiceBusRouter();
-
             container.Register<IMessageHandler, MessageHandler>(typeof(MessageHandler).FullName, new PerContainerLifetime());
 
             var host = container.GetInstance<IHost>();
@@ -87,22 +108,22 @@ namespace ConsoleApplication1
             Console.ReadLine();
         }
 
-        static void Main(string[] args)
-        {
-            var container = new WindsorContainer();
-            container.Kernel.Resolver.AddSubResolver(new ArrayResolver(container.Kernel));
+        //static void Main(string[] args)
+        //{
+        //    var container = new WindsorContainer();
+        //    container.Kernel.Resolver.AddSubResolver(new ArrayResolver(container.Kernel));
 
-            container.Install(new RouterInstaller(new IRouterConfigurationSource[] {new RouterConfigurationSourceSample()}));
-            container.Install(new AzureServiceBusRouterInstaller());
-            container.Register(Component.For(typeof(IMessageHandler)).ImplementedBy(typeof(MessageHandler)).Named(typeof(MessageHandler).FullName).LifestyleSingleton());
+        //    container.Install(new RouterInstaller(new IRouterConfigurationSource[] {new RouterConfigurationSourceSample()}));
+        //    container.Install(new AzureServiceBusRouterInstaller());
+        //    container.Register(Component.For(typeof(IMessageHandler)).ImplementedBy(typeof(MessageHandler)).Named(typeof(MessageHandler).FullName).LifestyleSingleton());
 
 
-            container.Install(new ServiceLocatorInstaller());
-            var host = container.Resolve<IHost>();
-            host.Configuration.UsingAzureServiceBus();
-            host.Run();
-            Console.ReadLine();
-        }
+        //    container.Install(new ServiceLocatorInstaller());
+        //    var host = container.Resolve<IHost>();
+        //    host.Configuration.UsingAzureServiceBus();
+        //    host.Run();
+        //    Console.ReadLine();
+        //}
 
         //static void Main(string[] args)
         //{

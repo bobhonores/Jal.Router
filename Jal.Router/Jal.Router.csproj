@@ -58,6 +58,7 @@
     <Compile Include="Fluent\Impl\StartingRouteBuilder.cs" />
     <Compile Include="Fluent\Impl\TimeoutBuilder.cs" />
     <Compile Include="Fluent\Interface\IAndWaitReplyFromEndPointBuilder.cs" />
+    <Compile Include="Fluent\Interface\IListenerChannelBuilder.cs" />
     <Compile Include="Fluent\Interface\INextListenerRouteBuilder.cs" />
     <Compile Include="Fluent\Interface\INextNameRouteBuilder.cs" />
     <Compile Include="Fluent\Interface\INextRouteBuilder.cs" />
