@@ -29,7 +29,7 @@ namespace Jal.Router.Impl
             return string.Empty;
         }
 
-        public virtual void Listen(RoutePath route, Action<object>[] routeactions, string channelpath)
+        public virtual void Listen(Channel route, Action<object>[] routeactions, string channelpath)
         {
 
         }

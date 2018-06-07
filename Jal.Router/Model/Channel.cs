@@ -2,7 +2,7 @@
 
 namespace Jal.Router.Model
 {
-    public class RoutePath
+    public class Channel
     {
         public Type ConnectionStringExtractorType { get; set; }
 

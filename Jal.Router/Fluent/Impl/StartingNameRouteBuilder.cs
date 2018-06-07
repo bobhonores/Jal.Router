@@ -32,7 +32,7 @@ namespace Jal.Router.Fluent.Impl
         {
             var value = new Route<TContent, THandler>(_name);
 
-            value.Paths.Add(new RoutePath
+            value.Channels.Add(new Channel
             {
                 ToPath = _topath,
 

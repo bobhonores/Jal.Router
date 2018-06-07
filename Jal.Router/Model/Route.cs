@@ -13,20 +13,10 @@ namespace Jal.Router.Model
             ConsumerInterfaceType = consumerinterfacetype;
             MiddlewareTypes = new List<Type>();
             Name = name;
-            Paths = new List<RoutePath>();
+            Channels = new List<Channel>();
         }
 
-        //public Type ConnectionStringExtractorType { get; set; }
-
-        //public object ToConnectionStringExtractor { get; set; }
-
-        //public string ToConnectionString { get; set; }
-
-        //public string ToPath { get; set; }
-
-        //public string ToSubscription { get; set; }
-
-        public IList<RoutePath> Paths { get; set; }
+        public IList<Channel> Channels { get; set; }
 
         public Type ConsumerInterfaceType { get; set; }
 
@@ -47,8 +37,6 @@ namespace Jal.Router.Model
         public IList<Type> MiddlewareTypes { get; set; }
 
         public string ForwardEndPoint { get; set; }
-
-        //public Action ShutdownAction { get; set; }
 
         public Func<MessageContext, bool> When { get; set; }
     }

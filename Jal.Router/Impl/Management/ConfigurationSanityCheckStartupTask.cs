@@ -48,7 +48,7 @@ namespace Jal.Router.Impl.Management
 
             foreach (var route in routes)
             {
-                foreach (var routePath in route.Paths)
+                foreach (var routePath in route.Channels)
                 {
                     var extractorconnectionstring = _factory.Create<IValueSettingFinder>(routePath.ConnectionStringExtractorType);
 
@@ -71,7 +71,7 @@ namespace Jal.Router.Impl.Management
 
             foreach (var route in routes)
             {
-                foreach (var routePath in route.Paths)
+                foreach (var routePath in route.Channels)
                 {
                     if (!counters.ContainsKey($"{routePath.ToConnectionString}/{routePath.ToPath}/{routePath.ToSubscription}"))
                         counters.Add($"{routePath.ToConnectionString}/{routePath.ToPath}/{routePath.ToSubscription}", new List<string> { route.Name });

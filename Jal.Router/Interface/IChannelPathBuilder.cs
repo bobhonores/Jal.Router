@@ -4,9 +4,9 @@ namespace Jal.Router.Interface
 {
     public interface IChannelPathBuilder
     {
-        string BuildFromRoute(string routeName, RoutePath route);
+        string BuildFromRoute(string routeName, Channel route);
 
-        string BuildFromSagaAndRoute(Saga saga, string routeName, RoutePath route);
+        string BuildFromSagaAndRoute(Saga saga, string routeName, Channel route);
 
         string BuildFromContext(MessageContext context);
 

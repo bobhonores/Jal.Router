@@ -5,7 +5,7 @@ namespace Jal.Router.Impl
 {
     public class ChannelPathBuilder : IChannelPathBuilder
     {
-        public string BuildFromSagaAndRoute(Saga saga, string routeName, RoutePath route)
+        public string BuildFromSagaAndRoute(Saga saga, string routeName, Channel route)
         {
             var channelpath = string.Empty;
 
@@ -30,7 +30,7 @@ namespace Jal.Router.Impl
             }
             return channelpath;
         }
-        public string BuildFromRoute(string routeName, RoutePath route)
+        public string BuildFromRoute(string routeName, Channel route)
         {
             var channelpath = string.Empty;
 

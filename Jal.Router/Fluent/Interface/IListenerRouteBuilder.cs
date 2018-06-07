@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using Jal.Router.Interface;
-using Jal.Router.Model;
 
 namespace Jal.Router.Fluent.Interface
 {

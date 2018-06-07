@@ -8,19 +8,11 @@ namespace Jal.Router.Fluent.Impl
 {
     public class NameRouteBuilder<THandler> : INameRouteBuilder<THandler>, IListenerRouteBuilder<THandler>, IListenerChannelBuilder<THandler>
     {
-        //private string _tosubscription;
-
-        //private string _topath;
-
-        //private Type _connectionstringextractortype;
-
-        //private object _toconnectionstringextractor;
-
         private readonly List<Route> _routes;
 
         private readonly string _name;
 
-        private IList<RoutePath> _paths;
+        private readonly IList<Channel> _channels;
 
         private Action<IListenerChannelBuilder<THandler>> _channelbuilder;
 
@@ -30,14 +22,14 @@ namespace Jal.Router.Fluent.Impl
 
             _name = name;
 
-            _paths = new List<RoutePath>();
+            _channels = new List<Channel>();
         }
 
         public IHandlerBuilder<TContent, THandler> ForMessage<TContent>()
         {
             _channelbuilder?.Invoke(this);
 
-            var value = new Route<TContent, THandler>(_name) {Paths = _paths};
+            var value = new Route<TContent, THandler>(_name) {Channels = _channels};
 
             var builder = new HandlerBuilder<TContent, THandler>(value);
 
@@ -58,7 +50,7 @@ namespace Jal.Router.Fluent.Impl
                 throw new ArgumentNullException(nameof(connectionstringextractor));
             }
 
-            _paths.Add(new RoutePath
+            _channels.Add(new Channel
             {
                 ToPath = path,
 
@@ -83,7 +75,7 @@ namespace Jal.Router.Fluent.Impl
                 throw new ArgumentNullException(nameof(subscription));
             }
 
-            _paths.Add(new RoutePath
+            _channels.Add(new Channel
             {
                 ToPath = path,
 
@@ -119,7 +111,7 @@ namespace Jal.Router.Fluent.Impl
                 throw new ArgumentNullException(nameof(connectionstringextractor));
             }
 
-            _paths.Add(new RoutePath
+            _channels.Add(new Channel
             {
                 ToPath = path,
 
@@ -146,7 +138,7 @@ namespace Jal.Router.Fluent.Impl
                 throw new ArgumentNullException(nameof(subscription));
             }
 
-            _paths.Add(new RoutePath
+            _channels.Add(new Channel
             {
                 ToPath = path,
 

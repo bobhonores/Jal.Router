@@ -64,16 +64,19 @@ namespace Jal.Router.Impl.Inbound
 
             foreach (var routeToListen in routes)
             {
-                foreach (var routePath in routeToListen.Route.Paths)
+                foreach (var channel in routeToListen.Route.Channels)
                 {
-                    if (!groups.ContainsKey(routeToListen.Route.Name + routePath.ToPath + routePath.ToSubscription + routePath.ToConnectionString))
-                        groups.Add(routeToListen.Route.Name + routePath.ToPath + routePath.ToSubscription + routePath.ToConnectionString, new List<RouteToListen>() { routeToListen });
+                    if (!groups.ContainsKey(routeToListen.Route.Name + channel.ToPath + channel.ToSubscription + channel.ToConnectionString))
+                    {
+                        groups.Add(routeToListen.Route.Name + channel.ToPath + channel.ToSubscription + channel.ToConnectionString, new List<RouteToListen>() { routeToListen });
+                    }
                     else
-                        groups[routeToListen.Route.Name + routePath.ToPath + routePath.ToSubscription + routePath.ToConnectionString].Add(routeToListen);
+                    {
+                        groups[routeToListen.Route.Name + channel.ToPath + channel.ToSubscription + channel.ToConnectionString].Add(routeToListen);
+                    }
+                        
                 }  
             }
-
-            //var groups = routes.GroupBy(x => x.Route.Name + x.Route.ToPath + x.Route.ToSubscription + x.Route.ToConnectionString);
 
             foreach (var @group in groups)
             {
@@ -116,23 +119,22 @@ namespace Jal.Router.Impl.Inbound
 
                         var saga = item.Saga;
 
-                        foreach (var routePath in route.Paths)
+                        var channel = route.Channels.First(x => group.Key.Replace(route.Name, "") == x.ToPath + x.ToSubscription + x.ToConnectionString);
+
+                        var channelpath = item.Saga == null ? _builder.BuildFromRoute(route.Name, channel) : _builder.BuildFromSagaAndRoute(saga, route.Name, channel);
+
+                        if (!string.IsNullOrWhiteSpace(channel.ToPath) && string.IsNullOrWhiteSpace(channel.ToSubscription))
                         {
-                            var channelpath = item.Saga == null ? _builder.BuildFromRoute(route.Name, routePath) : _builder.BuildFromSagaAndRoute(saga, route.Name, routePath);
+                            pointtopointchannel.Listen(channel, actions.ToArray(), channelpath);
 
-                            if (!string.IsNullOrWhiteSpace(routePath.ToPath) && string.IsNullOrWhiteSpace(routePath.ToSubscription))
-                            {
-                                pointtopointchannel.Listen(routePath, actions.ToArray(), channelpath);
+                            Console.WriteLine($"Listening {channelpath} point to point channel");
+                        }
 
-                                Console.WriteLine($"Listening {channelpath} point to point channel");
-                            }
+                        if (!string.IsNullOrWhiteSpace(channel.ToPath) && !string.IsNullOrWhiteSpace(channel.ToSubscription))
+                        {
+                            publishsubscriberchannel.Listen(channel, actions.ToArray(), channelpath);
 
-                            if (!string.IsNullOrWhiteSpace(routePath.ToPath) && !string.IsNullOrWhiteSpace(routePath.ToSubscription))
-                            {
-                                publishsubscriberchannel.Listen(routePath, actions.ToArray(), channelpath);
-
-                                Console.WriteLine($"Listening {channelpath} publish subscriber channel");
-                            }
+                            Console.WriteLine($"Listening {channelpath} publish subscriber channel");
                         }
                     }
                     else
@@ -141,23 +143,22 @@ namespace Jal.Router.Impl.Inbound
 
                         var route = item.Route;
 
-                        foreach (var routePath in route.Paths)
+                        var channel = route.Channels.First(x => group.Key.Replace(route.Name, "") == x.ToPath + x.ToSubscription + x.ToConnectionString);
+
+                        var channelpath = _builder.BuildFromRoute(route.Name, channel);
+
+                        if (!string.IsNullOrWhiteSpace(channel.ToPath) && string.IsNullOrWhiteSpace(channel.ToSubscription))
                         {
-                            var channelpath = _builder.BuildFromRoute(route.Name, routePath);
+                            pointtopointchannel.Listen(channel, actions.ToArray(), channelpath);
 
-                            if (!string.IsNullOrWhiteSpace(routePath.ToPath) && string.IsNullOrWhiteSpace(routePath.ToSubscription))
-                            {
-                                pointtopointchannel.Listen(routePath, actions.ToArray(), channelpath);
+                            Console.WriteLine($"Listening {channelpath} point to point channel ({actions.Count})");
+                        }
 
-                                Console.WriteLine($"Listening {channelpath} point to point channel ({actions.Count})");
-                            }
+                        if (!string.IsNullOrWhiteSpace(channel.ToPath) && !string.IsNullOrWhiteSpace(channel.ToSubscription))
+                        {
+                            publishsubscriberchannel.Listen(channel, actions.ToArray(), channelpath);
 
-                            if (!string.IsNullOrWhiteSpace(routePath.ToPath) && !string.IsNullOrWhiteSpace(routePath.ToSubscription))
-                            {
-                                publishsubscriberchannel.Listen(routePath, actions.ToArray(), channelpath);
-
-                                Console.WriteLine($"Listening {channelpath} publish subscriber channel ({actions.Count})");
-                            }
+                            Console.WriteLine($"Listening {channelpath} publish subscriber channel ({actions.Count})");
                         }
                     }
                 }

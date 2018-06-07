@@ -40,7 +40,7 @@ namespace Jal.Router.Impl.Inbound
 
         private void Shutdown(Route route)
         {
-            foreach (var routePath in route.Paths)
+            foreach (var routePath in route.Channels)
             {
                 if (routePath.ShutdownAction != null)
                 {
@@ -67,7 +67,7 @@ namespace Jal.Router.Impl.Inbound
 
         private void Shutdown(Saga saga, Route route)
         {
-            foreach (var routePath in route.Paths)
+            foreach (var routePath in route.Channels)
             {
                 if (routePath.ShutdownAction != null)
                 {

@@ -7,6 +7,6 @@ namespace Jal.Router.Interface
     {
         void Send(MessageContext context);
 
-        void Listen(RoutePath route, Action<object>[] routeactions, string channelpath);
+        void Listen(Channel route, Action<object>[] routeactions, string channelpath);
     }
 }
