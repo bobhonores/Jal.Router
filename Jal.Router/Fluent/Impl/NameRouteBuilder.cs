@@ -6,7 +6,7 @@ using Jal.Router.Model;
 
 namespace Jal.Router.Fluent.Impl
 {
-    public class NameRouteBuilder<THandler> : INameRouteBuilder<THandler>, IListenerRouteBuilder<THandler>, IListenerChannelBuilder<THandler>
+    public class NameRouteBuilder<THandler> : INameRouteBuilder<THandler>, IListenerRouteBuilder<THandler>, IListenerChannelBuilder
     {
         private readonly List<Route> _routes;
 
@@ -14,7 +14,7 @@ namespace Jal.Router.Fluent.Impl
 
         private readonly IList<Channel> _channels;
 
-        private Action<IListenerChannelBuilder<THandler>> _channelbuilder;
+        private Action<IListenerChannelBuilder> _channelbuilder;
 
         public NameRouteBuilder(List<Route> routes, string name)
         {
@@ -87,7 +87,7 @@ namespace Jal.Router.Fluent.Impl
             });
         }
 
-        public INameRouteBuilder<THandler> ToListenChannels(Action<IListenerChannelBuilder<THandler>> channelbuilder)
+        public INameRouteBuilder<THandler> ToListenChannels(Action<IListenerChannelBuilder> channelbuilder)
         {
             if (channelbuilder == null)
             {
